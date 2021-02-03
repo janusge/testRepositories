@@ -1,0 +1,69 @@
+@startuml
+
+  class PaymentHandlerInterface <<Interface>>
+  class PaymentHandler
+  PaymentHandler  ..|> PaymentHandlerInterface
+
+  PaymentHandler <.. BankService
+  class BankServiceInterface <<Interface>>
+  class BankService
+  BankService ..|> BankServiceInterface
+  class ClientHttp <<Interface>>
+  class BankClient
+  BankClient ..|> ClientHttp
+  class ResponseData <<Interface>>
+  class BankData
+  BankData ..|> ResponseData
+  BankService <.. BankClient
+  BankService <.. BankData
+  class Entity <<Interface>>
+  class Jsonable <<Interface>>{
+    toJson(): Object
+  }
+  class Arrayable <<Interface>>{
+    toArray(): array
+  }
+  Entity --|> Jsonable
+  Entity --|> Arrayable
+  class Repository <<Interface>>{
+    create(Entity): Entity
+    update(Entity): Entity
+    delete(int id): int
+    get(int id): Entity
+    all(): array<Entity>
+  }
+  class BaseRepository
+  BaseRepository ..|> Repository
+  class PaymentRepositoryInteface
+  class BankRepositoryInteface
+  PaymentRepositoryInteface --|> Repository
+  BankRepositoryInteface --|> Repository
+  class PaymentRepository
+  class BankRepository
+  PaymentRepository ..|> PaymentRepositoryInteface
+  PaymentRepository --|> BaseRepository
+  BankRepository ..|> BankRepositoryInteface
+  BankRepository --|> BaseRepository
+  class Payment
+  class Bank
+  Payment ..|> Entity
+  Payment ..> PaymentRepository
+  Bank ..|> Entity
+  Bank ..> BankRepository
+  class UnitOfWork <<Interface>>{
+    complete(): void
+  }
+  class BaseUnitOfWork
+  BaseUnitOfWork ..|> UnitOfWork
+  class PaymentUnitOfWorkInterface <<Interface>>{
+    getPaymentRepository(): PaymentRepositoryInteface
+    getBankRepository(): BankRepositoryInteface
+  }
+  class PaymentUnitOfWork
+  PaymentUnitOfWork --|> BaseUnitOfWork
+  PaymentUnitOfWork ..|> PaymentUnitOfWorkInterface
+  PaymentUnitOfWorkInterface --|> UnitOfWork
+  PaymentRepository ..> PaymentUnitOfWork
+  BankRepository ..> PaymentUnitOfWork
+  PaymentUnitOfWork ..> PaymentHandler
+@enduml
